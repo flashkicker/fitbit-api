@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1= title  
+  - if(!error) {
+    p Welcome to #{title}  
+  - } else {
+    p #{errorMessage}       
+  - }
+  p.lead
+    a(href="/authorizeFitbit", role="button") Add a new Fitbit
+    br
+    a(href="/profile?id=622KYV", role="button") Get user profile
