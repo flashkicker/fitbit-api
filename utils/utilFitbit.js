@@ -27,22 +27,17 @@ function getTokens(authCode) {
   })
 }
 
-function refreshTokens(id) {
-  let refreshToken;
-  let accessToken;
-  
+function refreshTokens(id) {  
   return new Promise((resolve, reject) => {
-    fitbitModel.getRefreshToken(id)
-    .then((rToken) => {
-      refreshToken = rToken[0].REFRESHTOKEN
-      return fitbitModel.getAccessToken(id)
-    })
-    .then((aToken) => {
-      accessToken = aToken[0].ACCESSTOKEN
+    
+    fitbitModel.loadTokens(id)
+    .then((tokens) => {
+      let refreshToken = tokens[0].REFRESHTOKEN
+      let accessToken = tokens[0].ACCESSTOKEN
+      
       return client.refreshAccessToken(accessToken, refreshToken)
     })
     .then((results) => {
-      console.log(results)
       return fitbitModel.updateTokens(id, results.access_token, results.refresh_token)
     })
     .then(() => {
@@ -61,9 +56,7 @@ function getProfile(id) {
       return fitbitModel.getAccessToken(id)
     })
     .then((result) => {
-      console.log(result)
       let accessToken = result[0].ACCESSTOKEN
-      console.log(accessToken)
       return client.get("/profile.json", accessToken)
     })
     .then((results) => {
@@ -75,9 +68,60 @@ function getProfile(id) {
   })    
 }
 
+function formatDate(date) {
+  var d = new Date(date),
+  month = '' + (d.getMonth() + 1),
+  day = '' + d.getDate(),
+  year = d.getFullYear();
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+  return [year, month, day].join('-');
+}
+
+function getSteps(id) {
+  return new Promise((resolve, reject) => {
+    refreshTokens(id)
+    .then(() => {
+      return fitbitModel.getAccessToken(id)
+    })
+    .then((result) => {
+      let accessToken = result[0].ACCESSTOKEN
+      return client.get(`/activities/steps/date/${formatDate(new Date())}.json`, accessToken)
+    })
+    .then((results) => {
+      resolve(results)
+    })
+    .catch((err) => {
+      reject(err)
+    })
+  })
+}
+
+function getActivities(id) {
+  return new Promise((resolve, reject) => {
+    refreshTokens(id)
+    .then(() => {
+      return fitbitModel.getAccessToken(id)
+    })
+    .then((result) => {
+      let accessToken = result[0].ACCESSTOKEN
+      return client.get(`/activities/list/date/2017-11-24.json`, accessToken)
+    })
+    .then((results) => {
+      resolve(results)
+    })
+    .catch((err) => {
+      reject(err)
+    })
+  })
+}
+
 module.exports = {
   authorize,
   getTokens,
   refreshTokens,
-  getProfile
+  getProfile,
+  formatDate,
+  getSteps,
+  getActivities
 }

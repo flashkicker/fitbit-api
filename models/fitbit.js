@@ -10,7 +10,7 @@ function saveTokens(tokens) {
   return new Promise((resolve, reject) => {
     let stage = db.stage(dbConfig);
     stage
-    .execute("INSERT INTO device(ID, REFRESHTOKEN, ACCESSTOKEN) values(?, ?, ?)", [tokens.fitbitUserId, tokens.refreshToken, tokens.accessToken])
+    .execute("INSERT INTO device(ID, REFRESHTOKEN, ACCESSTOKEN) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE REFRESHTOKEN=?, ACCESSTOKEN=?", [tokens.fitbitUserId, tokens.refreshToken, tokens.accessToken, tokens.refreshToken, tokens.accessToken])
     .finale((err, result) => {
       if(err) { reject(err) }
       else { resolve() }
@@ -42,6 +42,18 @@ function getRefreshToken(id) {
   })
 }
 
+function loadTokens(id) {
+  return new Promise((resolve, reject) => {
+    let stage = db.stage(dbConfig)
+    stage
+    .query("SELECT ID, ACCESSTOKEN, REFRESHTOKEN FROM device WHERE ID=?", [id])
+    .finale((err, result) => {
+      if(err) { reject(err) }
+      else { resolve(result) }
+    })
+  })
+}
+
 function updateTokens(id, accessToken, refreshToken) {
   return new Promise((resolve, reject) => {
     let stage = db.stage(dbConfig);
@@ -58,7 +70,8 @@ module.exports = {
   saveTokens,
   getAccessToken,
   getRefreshToken,
-  updateTokens
+  updateTokens,
+  loadTokens
 }
 
 

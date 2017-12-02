@@ -18,6 +18,7 @@ router.get('/callbackUrl', (req, res, next) => {
   }).then(() => {
     res.redirect('/');
   }).catch((err) => {
+    console.log(err)
     res.render('index', {
       title: 'Express',
       error: err,
@@ -36,6 +37,32 @@ router.get('/profile', (req, res, next) => {
   .catch((err) => {
     console.log(err)
     res.send(err);
+  })
+})
+
+router.get('/steps', (req, res, next) => {
+  let id = req.query.id
+  
+  fitbitUtil.getSteps(id)
+  .then((result) => {
+    res.send(result)
+  })
+  .catch((err) => {
+    console.log(err)
+    res.send(err)
+  })
+})
+
+router.get('/activities', (req, res, next) => {
+  let id = req.query.id
+  
+  fitbitUtil.getActivities(id)
+  .then((result) => {
+    res.send(result)
+  })
+  .catch((err) => {
+    console.log(err)
+    res.send(err)
   })
 })
 
