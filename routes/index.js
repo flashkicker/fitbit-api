@@ -66,6 +66,19 @@ router.get('/activities', (req, res, next) => {
   })
 })
 
+router.get('/trackedActivity', (req, res, next) => {
+  let id = req.query.id
+  
+  fitbitUtil.getTrackedActivity(id)
+  .then((result) => {
+    res.send(result)
+  })
+  .catch((err) => {
+    console.log(err)
+    res.send(err)
+  })
+})
+
 router.get('/authorizeFitbit', (req, res, next) => {
   fitbitUrl = fitbitUtil.authorize()
   res.redirect(fitbitUrl);

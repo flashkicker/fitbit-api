@@ -1,4 +1,5 @@
 const FitbitApiClient = require('fitbit-node');
+const parseString  = require('xml2js').parseString
 
 const fitbitConfig = require('../config/config.js').fitbitConfig
 const fitbitModel = require('../models/fitbit')
@@ -86,7 +87,7 @@ function getSteps(id) {
     })
     .then((result) => {
       let accessToken = result[0].ACCESSTOKEN
-      return client.get(`/activities/steps/date/${formatDate(new Date())}.json`, accessToken)
+      return client.get(`/activities/steps/date/2017-11-01/${formatDate(new Date())}.json`, accessToken)
     })
     .then((results) => {
       resolve(results)
@@ -105,9 +106,38 @@ function getActivities(id) {
     })
     .then((result) => {
       let accessToken = result[0].ACCESSTOKEN
-      return client.get(`/activities/list/date/2017-11-24.json`, accessToken)
+      let tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return client.get(`/activities/list.json?beforeDate=${formatDate(tomorrow)}&limit=20&offset=0&sort=desc`, accessToken)
     })
     .then((results) => {
+      let logIds = results[0].activities.map((logId) => {
+        return logId.logId
+      })
+      resolve(logIds)
+    })
+    .catch((err) => {
+      reject(err)
+    })
+  })
+}
+
+function getTrackedActivity(id) {
+  return new Promise((resolve, reject) => {
+    refreshTokens(id)
+    .then(() => {
+      return fitbitModel.getAccessToken(id)
+    })
+    .then((result) => {
+      let accessToken = result[0].ACCESSTOKEN
+      client.get("/activities/11061783452.tcx", accessToken)
+    })
+    .then((results) => {
+      console.log(results)
+      let xml = results
+      parseString(xml, { explicitArray: false, ignoreAttrs: true }, (err, jsonResult) => {
+        console.log(jsonResult);
+      });
       resolve(results)
     })
     .catch((err) => {
@@ -123,5 +153,6 @@ module.exports = {
   getProfile,
   formatDate,
   getSteps,
-  getActivities
+  getActivities,
+  getTrackedActivity
 }

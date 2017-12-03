@@ -22,3 +22,9 @@ CREATE TABLE `fitbitresponse` (
   PRIMARY KEY (`ID`),
   CONSTRAINT fitbitid_unique UNIQUE (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `activities` (
+  `LOGID` bigint(20) NOT NULL,
+  `FITBITID` varchar(20) NOT NULL,
+  PRIMARY KEY (`LOGID`)
+)
