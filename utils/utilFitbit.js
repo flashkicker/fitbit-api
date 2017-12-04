@@ -90,7 +90,7 @@ function getSteps(id) {
       return client.get(`/activities/steps/date/2017-11-01/${formatDate(new Date())}.json`, accessToken)
     })
     .then((results) => {
-      resolve(results)
+      resolve(results[0]["activities-steps"])
     })
     .catch((err) => {
       reject(err)
@@ -111,8 +111,8 @@ function getActivities(id) {
       return client.get(`/activities/list.json?beforeDate=${formatDate(tomorrow)}&limit=20&offset=0&sort=desc`, accessToken)
     })
     .then((results) => {
-      let logIds = results[0].activities.map((logId) => {
-        return logId.logId
+      let logIds = results[0].activities.map((activity) => {
+        return activity.logId
       })
       resolve(logIds)
     })
@@ -122,7 +122,7 @@ function getActivities(id) {
   })
 }
 
-function getTrackedActivity(id) {
+function getTrackedActivity(id, logId) {
   return new Promise((resolve, reject) => {
     refreshTokens(id)
     .then(() => {
@@ -130,15 +130,19 @@ function getTrackedActivity(id) {
     })
     .then((result) => {
       let accessToken = result[0].ACCESSTOKEN
-      client.get("/activities/11061783452.tcx", accessToken)
+      return client.getXML(`/activities/${logId}.tcx`, accessToken)
     })
     .then((results) => {
-      console.log(results)
-      let xml = results
-      parseString(xml, { explicitArray: false, ignoreAttrs: true }, (err, jsonResult) => {
-        console.log(jsonResult);
+      parseString(results, { explicitArray: false, ignoreAttrs: true }, (err, jsonResult) => {
+        let activityData = jsonResult.TrainingCenterDatabase.Activities.Activity.Lap
+        
+        let timeAndLocationSeries = activityData.Track.Trackpoint.reduce((arrayOfObjs, obj) => {
+          arrayOfObjs.push(obj.Time)
+          arrayOfObjs.push(obj.Position)
+          return arrayOfObjs
+        }, [])
+        resolve(timeAndLocationSeries)
       });
-      resolve(results)
     })
     .catch((err) => {
       reject(err)

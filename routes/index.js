@@ -58,7 +58,10 @@ router.get('/activities', (req, res, next) => {
   
   fitbitUtil.getActivities(id)
   .then((result) => {
-    res.send(result)
+    res.render('activities', {
+      fitbitId: '622KYV',
+      logIds: result  
+    })
   })
   .catch((err) => {
     console.log(err)
@@ -68,8 +71,9 @@ router.get('/activities', (req, res, next) => {
 
 router.get('/trackedActivity', (req, res, next) => {
   let id = req.query.id
+  let logId = req.query.logId
   
-  fitbitUtil.getTrackedActivity(id)
+  fitbitUtil.getTrackedActivity(id, logId)
   .then((result) => {
     res.send(result)
   })

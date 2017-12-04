@@ -1,0 +1,13 @@
+extends layout
+
+block content
+    - logIds.forEach((logId) => {
+        ul
+            input(type="button", value=logId, onclick='goToActivity(' + fitbitId + ', ' + logId + ')')
+    - })
+
+    script.
+    
+        function goToActivity(id, logId){
+            location="./trackedActivity?id=" + id + "&logId=" + logId;
+        };
