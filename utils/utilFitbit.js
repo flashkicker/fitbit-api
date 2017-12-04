@@ -137,8 +137,12 @@ function getTrackedActivity(id, logId) {
         let activityData = jsonResult.TrainingCenterDatabase.Activities.Activity.Lap
         
         let timeAndLocationSeries = activityData.Track.Trackpoint.reduce((arrayOfObjs, obj) => {
-          arrayOfObjs.push(obj.Time)
-          arrayOfObjs.push(obj.Position)
+          timeAndLocationObj = {
+            Time: obj.Time,
+            Latitude: obj.Position.LatitudeDegrees,
+            Longitude: obj.Position.LongitudeDegrees
+          }
+          arrayOfObjs.push(timeAndLocationObj)
           return arrayOfObjs
         }, [])
         resolve(timeAndLocationSeries)

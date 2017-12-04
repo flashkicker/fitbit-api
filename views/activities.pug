@@ -3,7 +3,7 @@ extends layout
 block content
     - logIds.forEach((logId) => {
         ul
-            input(type="button", value=logId, onclick='goToActivity(' + fitbitId + ', ' + logId + ')')
+            input(type="button", value=logId, onclick='goToActivity(\'' + fitbitId  +'\',\'' + logId + '\')')
     - })
 
     script.
